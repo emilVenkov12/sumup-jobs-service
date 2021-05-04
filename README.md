@@ -1,5 +1,11 @@
 # Sumup Coding Chanlage - Tasks Handler
 
+## Tests
+
+```bash
+go test ./...
+```
+
 ## Description
 
 In this coding chanllenge we kindly ask you to implent a rather contrived HTTP job processing service.
