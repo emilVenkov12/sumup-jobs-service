@@ -18,9 +18,11 @@ func getTasksFromReq(req *http.Request) (tasks.Tasks, error) {
 	return tasksArr, nil
 }
 
+// SortTasksHandler handles the sort tasks request and return json
 func SortTasksHandler(w http.ResponseWriter, req *http.Request) {
 	t, err := getTasksFromReq(req)
 	if err != nil {
+		log.Printf("not able to parse the tasks due to %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -32,7 +34,13 @@ func SortTasksHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	res, _ := json.Marshal(orderedTasks)
+	res, err := json.Marshal(orderedTasks)
+
+	if err != nil {
+		log.Printf("not able to marshal the tasks due to %v", err)
+		http.Error(w, "Not able to process your request.", http.StatusInternalServerError)
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
 	_, err = w.Write(res)
 	if err != nil {
@@ -40,6 +48,7 @@ func SortTasksHandler(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+// SortTasksBashHandler handles the sort tasks request and return bash
 func SortTasksBashHandler(w http.ResponseWriter, req *http.Request) {
 	t, err := getTasksFromReq(req)
 	if err != nil {

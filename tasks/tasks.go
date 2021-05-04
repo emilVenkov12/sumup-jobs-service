@@ -12,7 +12,7 @@ type Tasks struct {
 	Tasks []Task `json:"tasks"`
 }
 
-// Order the topologically based on the requires array
+// TopologicallyOrderTasks orders the tasks topologically based on the requires array
 func TopologicallyOrderTasks(tasks []Task) ([]Task, error) {
 	if len(tasks) == 0 || len(tasks) == 1 {
 		return tasks, nil
@@ -54,6 +54,8 @@ func TopologicallyOrderTasks(tasks []Task) ([]Task, error) {
 		u := q[0]
 		t := Task{Name: tasksMap[u].Name, Command: tasksMap[u].Command}
 		orderedTasks = append(orderedTasks, t)
+
+		//dequeue
 		q = q[1:]
 
 		for _, v := range requires[u] {
@@ -65,7 +67,7 @@ func TopologicallyOrderTasks(tasks []Task) ([]Task, error) {
 		cnt++
 	}
 	if cnt != len(tasksMap) {
-		return nil, errors.New("incorrect task requires - cyclic dependencies")
+		return nil, errors.New("incorrect tasks requires - cyclic dependencies")
 	}
 	return orderedTasks, nil
 }
