@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"bytes"
 	"encoding/json"
 	"job-service/tasks"
+	"log"
 	"net/http"
 )
 
@@ -32,7 +34,10 @@ func SortTasksHandler(w http.ResponseWriter, req *http.Request) {
 
 	res, _ := json.Marshal(orderedTasks)
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(res)
+	_, err = w.Write(res)
+	if err != nil {
+		log.Printf("Write to response writer failed: %v", err)
+	}
 }
 
 func SortTasksBashHandler(w http.ResponseWriter, req *http.Request) {
@@ -50,9 +55,22 @@ func SortTasksBashHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/plain;charset=UTF-8")
-	w.Write([]byte("#!/usr/bin/env bash\n"))
+
+	var res bytes.Buffer
+	_, err = res.WriteString("#!/usr/bin/env bash\n")
+	if err != nil {
+		log.Printf("writing to bytes buffer failed: %v", err)
+	}
+
 	for _, v := range orderedTasks {
-		w.Write([]byte("\n"))
-		w.Write([]byte(v.Command))
+		_, err = res.WriteString("\n" + v.Command)
+		if err != nil {
+			log.Printf("writing to bytes buffer failed: %v", err)
+		}
+	}
+
+	_, err = w.Write(res.Bytes())
+	if err != nil {
+		log.Printf("writing to response writer failed: %v", err)
 	}
 }
